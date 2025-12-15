@@ -2,30 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Blog - FullStack Blog</title>
+  <title>Create Blog</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Main Container -->
-  <div class="container">
-    <div class="form-container">
-      <h2>Create a New Blog</h2>
-      <form id="createBlogForm">
-        <div class="form-group">
-          <label for="title">Title</label>
-          <input type="text" id="title" name="title" placeholder="Enter blog title" required>
-        </div>
 
-        <div class="form-group">
-          <label for="content">Content</label>
-          <textarea id="content" name="content" placeholder="Write your blog content here..." rows="8" required></textarea>
-        </div>
-
-        <button type="submit" class="btn">Publish Blog</button>
-      </form>
-      <p class="login-link"><a href="blogs.html">Back to Dashboard</a></p>
-    </div>
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="nav-container">
+    <h1 class="logo">Blogify</h1>
+    <nav>
+      <a href="blogs.html">All Blogs</a>
+      <a href="#" class="logout">Logout</a>
+    </nav>
   </div>
+</header>
+
+<!-- CREATE BLOG -->
+<main class="container">
+  <div class="blog-form-card">
+    <h2>Create New Blog</h2>
+
+   <form id="createBlogForm">
+  <input type="text" id="title" placeholder="Blog Title" required>
+  <textarea id="content" rows="8" placeholder="Write your blog content..." required></textarea>
+  <button type="submit" class="btn">Publish</button>
+  <p id="blogMessage" style="margin-top:10px;"></p>
+</form>
+
+  </div>
+</main>
+
 </body>
 </html>
+
+

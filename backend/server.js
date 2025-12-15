@@ -2,13 +2,15 @@ const express = require("express");
 const userData = require("./router/route");
 const dbCon = require("./db/dbConnection");
 const blogRoute = require("./router/blogRoute");
+const cors = require("cors");
+
 
 
 const app = express();
 const PORT = 3000 || process.env.PORT;
 
 dbCon(); // <-- call database connection
-
+app.use(cors());
 app.use(express.json());
 
 // APIs Calling
