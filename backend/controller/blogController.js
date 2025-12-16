@@ -41,7 +41,7 @@ async function createBlog(req, res) {
 
 async function getAllBlogs(req, res) {
     try{
-        const blogs = await blogModel.find().sort({ createdAt: -1 }); // latest first
+        const blogs = await blogModel.find().sort({ createdAt: -1 });  
         res.status(200).send({
             status: 200,
             message: "All blogs fetched successfully",

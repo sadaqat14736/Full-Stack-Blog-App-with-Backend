@@ -96,25 +96,26 @@ if (loginForm) {   // <-- only run if loginForm exists
 
 
 
-// ===== CREATE BLOG FUNCTIONALITY =====
+
+
+
+
+
+
+// ===== CREATE BLOG =====
 const createBlogForm = document.getElementById("createBlogForm");
 
 if (createBlogForm) {
-  const blogMessage = document.getElementById("blogMessage");
-
   createBlogForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const title = document.getElementById("title").value.trim();
     const content = document.getElementById("content").value.trim();
+    const blogMessage = document.getElementById("blogMessage");
 
-    if (!title || !content) {
-      blogMessage.style.color = "red";
-      blogMessage.textContent = "Please enter title and content!";
-      return;
-    }
+    blogMessage.textContent = "";
 
-    // Get JWT token from localStorage
+    // Get token
     const token = localStorage.getItem("token");
     if (!token) {
       blogMessage.style.color = "red";
@@ -123,29 +124,125 @@ if (createBlogForm) {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/api/createBlog",
-        { title, content },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      console.log("Blog created:", res.data);
+      const res = await axios({
+        method: "post",
+        url: "http://localhost:3000/api/blog/createBlog",
+        data: { title, content },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
 
       blogMessage.style.color = "green";
-      blogMessage.textContent = "Blog created successfully!";
+      blogMessage.textContent = res.data.message;
 
-      // Reset form
+      // Clear form
       createBlogForm.reset();
 
-      // Optional: redirect to all blogs page after 1 second
-      setTimeout(() => {
-        window.location.href = "blogs.html";
-      }, 1000);
-
     } catch (err) {
-      console.error("Error creating blog:", err);
+      console.error(err);
       blogMessage.style.color = "red";
-      blogMessage.textContent = err.response?.data?.message || "Failed to create blog!";
+      blogMessage.textContent = err.response?.data?.message || "Error creating blog!";
     }
   });
 }
+
+
+
+
+// ===== FETCH ALL BLOGS =====
+const blogsContainer = document.getElementById("blogsContainer");
+
+if (blogsContainer) {
+  async function fetchBlogs() {
+    try {
+      const res = await axios.get("http://localhost:3000/api/blog/all");
+
+      const blogs = res.data.blogs;
+      blogsContainer.innerHTML = "";
+
+      if (blogs.length === 0) {
+        blogsContainer.innerHTML = "<p>No blogs found.</p>";
+        return;
+      }
+
+      // blogs.forEach(blog => {
+      //   const blogCard = document.createElement("div");
+      //   blogCard.className = "blog-card";
+
+      //   blogCard.innerHTML = `
+      //     <p class="author">Author: ${blog.author}</p>
+      //     <h3>${blog.title}</h3>
+      //     <p class="content">${blog.content.substring(0, 150)}${blog.content.length > 150 ? "..." : ""}</p>
+      //     <p class="date">Date: ${new Date(blog.createdAt).toLocaleString()}</p>
+      //   `;
+
+      //   blogsContainer.appendChild(blogCard);
+      // });
+
+      blogs.forEach(blog => {
+  const blogCard = document.createElement("div");
+  blogCard.className = "blog-card";
+
+  const fullContent = blog.content;
+  const previewContent = fullContent.length > 150 ? fullContent.substring(0, 150) + "..." : fullContent;
+
+  blogCard.innerHTML = `
+    <div class="blog-card-header">
+      <span class="author">${blog.author}</span>
+      <span class="date">${new Date(blog.createdAt).toLocaleDateString()}</span>
+    </div>
+    <h3 class="blog-title">${blog.title}</h3>
+    <p class="content" id="content-${blog._id}">${previewContent}</p>
+    ${fullContent.length > 150 ? `<button class="read-more" data-id="${blog._id}">Read More</button>` : ""}
+  `;
+
+  blogsContainer.appendChild(blogCard);
+});
+
+
+
+// ===== READ MORE BUTTON =====
+document.querySelectorAll(".read-more").forEach(button => {
+  button.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    const contentEl = document.getElementById(`content-${id}`);
+    if (e.target.textContent === "Read More") {
+      contentEl.textContent = blogs.find(b => b._id === id).content;
+      e.target.textContent = "Show Less";
+    } else {
+      const fullContent = blogs.find(b => b._id === id).content;
+      contentEl.textContent = fullContent.substring(0, 150) + "...";
+      e.target.textContent = "Read More";
+    }
+  });
+});
+
+    } catch (err) {
+      console.error("Error fetching blogs:", err);
+      blogsContainer.innerHTML = "<p>Error loading blogs. Check console.</p>";
+    }
+  }
+
+  // Call on page load
+  fetchBlogs();
+}
+
+// ===== LOGOUT FUNCTIONALITY =====
+const logoutBtn = document.querySelector(".logout");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "index.html"; // redirect to login
+  });
+}
+
+
+
+
+
+
+

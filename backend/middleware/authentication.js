@@ -1,38 +1,41 @@
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
+require("dotenv").config();
 
-dotenv.config();
-
-console.log("secret key", process.env.JWTSECRETKEY);
-
-const authrization = async (req, res, next) => {
-  const header = req.header("authorization"); // Bearer sakjbjsab.diukcskj.buwwibdi98
-  console.log("here is a header", header);
-  if (!header) {
-    return res.send({
-      status: 401,
-      message: "headers are invalid",
-    });
-  }
+const authrization = (req, res, next) => {
   try {
-    const token = header.split(" ")[1]; // Extract token after "Bearer"
-    jwt.verify(token, process.env.JWTSECRETKEY, (err, user) => {
-      if (err) {
-        return res.sendStatus(403); // Forbidden
-      }
-      req.user = user; // Attach decoded user to request
-      console.log(req.user)
-      next();
-    });
-    // const decoded = jwt.verify(header, process.env.JWTSECRETKEY);
-    // console.log('here is decoded',decoded);
-    // req.user = decoded.user;
-    // next();
+    const header = req.headers.authorization; 
+
+    console.log("Authorization Header:", header);
+
+    if (!header) {
+      return res.status(401).send({
+        status: 401,
+        message: "Authorization header missing"
+      });
+    }
+
+    const token = header.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).send({
+        status: 401,
+        message: "Token missing"
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWTSECRETKEY);
+
+    req.user = decoded; 
+    console.log("Decoded user:", req.user);
+
+    next();
+
   } catch (err) {
-    res.send({
-      status: 505,
-      message: "user is not authorized",
+    return res.status(403).send({
+      status: 403,
+      message: "Invalid or expired token"
     });
   }
 };
+
 module.exports = authrization;
